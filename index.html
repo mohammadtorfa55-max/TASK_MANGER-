@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دفتر النقدية</title>
+  <style>
+:root {
+  --bg-color: #f4f6f9;
+  --card-bg: #ffffff;
+  --primary-blue: #1976d2;
+  --green: #2e7d32;
+  --green-bg: #e8f5e9;
+  --red: #d32f2f;
+  --red-bg: #ffebee;
+  --text-dark: #263238;
+  --text-muted: #78909c;
+  --border-color: #eceff1;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Cairo', sans-serif;
+}
+
+body {
+  background-color: #e0e5ec;
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 430px;
+  background-color: var(--bg-color);
+  height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+}
+
+/* الهيدر */
+.header {
+  background: var(--card-bg);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.header h2 {
+  font-size: 18px;
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+.header-action-btn {
+  background: #e3f2fd;
+  color: var(--primary-blue);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--primary-blue);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* الشاشات */
+.screen {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* بطاقة الرصيد */
+.balance-card {
+  background: var(--card-bg);
+  margin: 16px;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-left: 5px solid var(--green);
+  flex-shrink: 0;
+}
+
+.balance-card.negative {
+  border-left-color: var(--red);
+}
+
+.balance-label {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.balance-amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--green);
+  margin: 4px 0 12px;
+}
+
+.balance-amount.negative {
+  color: var(--red);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.income-text {
+  color: var(--green);
+}
+
+.expense-text {
+  color: var(--red);
+}
+
+/* أزرار الإضافة */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.btn-income,
+.btn-expense {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-income {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.btn-expense {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.btn-income:active,
+.btn-expense:active {
+  opacity: 0.7;
+}
+
+/* قائمة المعاملات */
+.section-title {
+  padding: 0 16px 8px;
+  color: var(--primary-blue);
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.tx-list {
+  padding: 0 16px 85px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tx-item {
+  background: var(--card-bg);
+  padding: 12px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.tx-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tx-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tx-badge.in {
+  background: var(--green);
+}
+
+.tx-badge.out {
+  background: var(--red);
+}
+
+.tx-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-dark);
+}
+
+.tx-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.tx-left {
+  text-align: left;
+}
+
+.tx-amount {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* شاشة الإدخال والآلة الحاسبة */
+.entry-display {
+  background: var(--card-bg);
+  padding: 24px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.entry-display small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.entry-value {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.note-box {
+  padding: 12px 16px;
+  flex-shrink: 0;
+}
+
+.note-box input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cfd8dc;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+
+.calc-container {
+  margin-top: auto;
+  background: #eceff1;
+  padding: 10px;
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.key {
+  background: var(--card-bg);
+  border: none;
+  padding: 16px 0;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.key.op {
+  background: #e3f2fd;
+  color: var(--primary-blue);
+}
+
+/* شاشة الأرشفة والتقارير */
+.info-card {
+  background: var(--card-bg);
+  margin: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  flex-shrink: 0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.btn-danger {
+  background: #ef5350;
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  width: calc(100% - 32px);
+  margin: auto 16px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* كارت تفاصيل المعاملات في الأرشيف (السكرول الداخلي) */
+.archive-tx-box {
+  background: var(--card-bg);
+  margin: 0 16px 16px;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.archive-tx-box .section-title {
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-bg);
+  flex-shrink: 0;
+}
+
+.archive-tx-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.archive-tx-scroll .tx-item {
+  background: var(--bg-color);
+  box-shadow: none;
+  border: 1px solid var(--border-color);
+}
+
+/* زر حذف عنصر الأرشيف */
+.delete-archive-btn {
+  background: var(--red-bg);
+  color: var(--red);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.delete-archive-btn:hover {
+  opacity: 0.8;
+}
+
+/* الشريط السفلي */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 430px;
+  background: var(--card-bg);
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid var(--border-color);
+  z-index: 20;
+}
+
+.nav-item {
+  flex: 1;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 8px 0 10px;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-item.active {
+  color: var(--primary-blue);
+  font-weight: 700;
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 3.5px;
+  background-color: var(--primary-blue);
+  border-radius: 4px 4px 0 0;
+}
+
+/* نافذة تأكيد الحذف المنبثقة */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 340px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.modal-box h3 {
+  color: var(--text-dark);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.modal-box p {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-btn.cancel {
+  background: #eceff1;
+  color: var(--text-dark);
+}
+
+.modal-btn.confirm {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.archive-clickable {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.archive-clickable:active {
+  transform: scale(0.98);
+}
+
+/* تحسين شكل شريط التمرير (Scrollbar) */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cfd8dc;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #90a4ae;
+}
+</style>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- 1. الشاشة الرئيسية -->
+    <div id="home-screen" class="screen active">
+      <div class="header">
+        <span style="font-size:13px; color:#546e7a;">دفتر النقدية</span>
+        <h2>الرئيسية</h2>
+        <button class="header-action-btn" onclick="openCloseAccount()" title="إنهاء وأرشفة">✅ إنهاء</button>
+      </div>
+
+      <div class="balance-card">
+        <div class="balance-label">الرصيد</div>
+        <div id="balance-display" class="balance-amount">0.0 ج.م.</div>
+        <div class="summary-row">
+          <span class="income-text">الدخل: <span id="total-income">0.0</span> ج.م.</span>
+          <span class="expense-text">المصروف: <span id="total-expense">0.0</span> ج.م.</span>
+        </div>
+      </div>
+
+      <div class="action-buttons" style="margin-bottom: 18px;">
+        <button class="btn-income" onclick="openEntry('income')">+ دخل</button>
+        <button class="btn-expense" onclick="openEntry('expense')">- مصروف</button>
+      </div>
+
+      <div class="section-title">المعاملات (<span id="tx-count">0</span>)</div>
+      <div id="tx-list" class="tx-list"></div>
+    </div>
+
+    <!-- 2. شاشة إضافة دخل / مصروف -->
+    <div id="entry-screen" class="screen" style="padding-bottom:0;">
+      <div class="header">
+        <button class="back-btn" onclick="showScreen('home-screen')">➔</button>
+        <h2 id="entry-title">دخل</h2>
+        <span style="width:24px;"></span>
+      </div>
+
+      <div class="entry-display">
+        <small id="entry-subtitle">دخل</small>
+        <div id="calc-display" class="entry-value income-text">0 ج.م.</div>
+      </div>
+
+      <div class="note-box">
+        <input type="text" id="tx-note" placeholder="اكتب وصف المعاملة" />
+      </div>
+
+      <div class="calc-container">
+        <button id="confirm-btn" class="confirm-btn btn-income" onclick="saveTransaction()">تأكيد</button>
+        <div class="keypad">
+          <button class="key op" onclick="pressKey('AC')">AC</button>
+          <button class="key op" onclick="pressKey('%')">%</button>
+          <button class="key op" onclick="pressKey('/')">/</button>
+          <button class="key op" onclick="pressKey('DEL')">⌫</button>
+          <button class="key" onclick="pressKey('7')">7</button>
+          <button class="key" onclick="pressKey('8')">8</button>
+          <button class="key" onclick="pressKey('9')">9</button>
+          <button class="key op" onclick="pressKey('*')">×</button>
+          <button class="key" onclick="pressKey('4')">4</button>
+          <button class="key" onclick="pressKey('5')">5</button>
+          <button class="key" onclick="pressKey('6')">6</button>
+          <button class="key op" onclick="pressKey('-')">-</button>
+          <button class="key" onclick="pressKey('1')">1</button>
+          <button class="key" onclick="pressKey('2')">2</button>
+          <button class="key" onclick="pressKey('3')">3</button>
+          <button class="key op" onclick="pressKey('+')">+</button>
+          <button class="key" onclick="pressKey('0')">0</button>
+          <button class="key" onclick="pressKey('.')">.</button>
+          <button class="key op" style="grid-column: span 2;" onclick="calculateResult()">=</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. شاشة إنهاء وأرشفة الحساب -->
+    <div id="close-screen" class="screen">
+      <div class="header">
+        <button class="back-btn" onclick="showScreen('home-screen')">✕</button>
+        <h2>أرشفة المعاملات</h2>
+        <span style="width:24px;"></span>
+      </div>
+
+      <div class="balance-card">
+        <div class="balance-label">الرصيد</div>
+        <div id="close-balance" class="balance-amount">0.0 ج.م.</div>
+        <div class="summary-row">
+          <span class="income-text">الدخل: <span id="close-income">0.0</span> ج.م.</span>
+          <span class="expense-text">المصروف: <span id="close-expense">0.0</span> ج.م.</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-row">
+          <strong>تاريخ فتح الحساب</strong>
+          <span id="open-date">-</span>
+        </div>
+        <div class="info-row">
+          <strong>تاريخ اغلاق الحساب</strong>
+          <span id="close-date">-</span>
+        </div>
+        <div class="info-row">
+          <strong>عدد المعاملات</strong>
+          <span id="close-count">0</span>
+        </div>
+      </div>
+
+      <p style="text-align:center; color:#78909c; font-size:13px; margin-top:auto; padding:10px;">
+        يمكنك الولوج لهذا الدفتر من "الأرشيف"
+      </p>
+      <button class="btn-danger" onclick="archiveNow()">أرشفة المعاملات</button>
+    </div>
+
+    <!-- 4. شاشة الأرشيف -->
+    <div id="archives-screen" class="screen">
+      <div class="header">
+        <span style="width:24px;"></span>
+        <h2>أرشيف المعاملات</h2>
+        <span style="width:24px;"></span>
+      </div>
+      <div id="archives-list" class="tx-list" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- 4.5. شاشة تفاصيل تقرير الأرشيف -->
+    <div id="archive-detail-screen" class="screen" style="padding-bottom:0;">
+      <div class="header">
+        <button class="back-btn" onclick="showScreen('archives-screen')">➔</button>
+        <h2>تقرير الأرشيف</h2>
+        <span style="width:24px;"></span>
+      </div>
+
+      <div class="balance-card">
+        <div class="balance-label">الرصيد الصافي للفترة</div>
+        <div id="arch-det-balance" class="balance-amount">0.0 ج.م.</div>
+        <div class="summary-row">
+          <span class="income-text">الدخل: <span id="arch-det-income">0.0</span> ج.م.</span>
+          <span class="expense-text">المصروف: <span id="arch-det-expense">0.0</span> ج.م.</span>
+        </div>
+      </div>
+
+      <div class="info-card" style="margin-top:0;">
+        <div class="info-row">
+          <strong>من</strong>
+          <span id="arch-det-from">-</span>
+        </div>
+        <div class="info-row">
+          <strong>إلى</strong>
+          <span id="arch-det-to">-</span>
+        </div>
+      </div>
+
+      <!-- الكارت الأبيض اللي جواه السكرول الداخلي -->
+      <div class="archive-tx-box">
+        <div class="section-title" style="padding: 12px 14px 10px;">
+          تفاصيل المعاملات (<span id="arch-det-count">0</span>)
+        </div>
+        <div id="arch-det-list" class="archive-tx-scroll"></div>
+      </div>
+    </div>
+
+    <!-- 5. شاشة التقارير -->
+    <div id="reports-screen" class="screen">
+      <div class="header">
+        <span style="width:24px;"></span>
+        <h2>التقارير</h2>
+        <span style="width:24px;"></span>
+      </div>
+
+      <div class="balance-card">
+        <div class="balance-label">الرصيد الحالي</div>
+        <div id="rep-balance" class="balance-amount">0.0 ج.م.</div>
+        <div class="info-row">
+          <div>
+            <strong style="color:var(--primary-blue);">إجمالي النقد الداخل</strong>
+            <div id="rep-in-count" style="font-size:12px; color:var(--text-muted);">0 عمليات</div>
+          </div>
+          <span id="rep-in-total" class="income-text" style="font-weight:700;">0.0 ج.م.</span>
+        </div>
+        <div class="info-row">
+          <div>
+            <strong style="color:var(--primary-blue);">إجمالي النقد الخارج</strong>
+            <div id="rep-out-count" style="font-size:12px; color:var(--text-muted);">0 عمليات</div>
+          </div>
+          <span id="rep-out-total" class="expense-text" style="font-weight:700;">0.0 ج.م.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- الشريط السفلي -->
+    <div id="bottom-nav" class="bottom-nav">
+      <div id="nav-home-screen" class="nav-item active" onclick="showScreen('home-screen')">💼<br>دفتر النقدية</div>
+      <div id="nav-reports-screen" class="nav-item" onclick="showScreen('reports-screen')">📊<br>التقارير</div>
+      <div id="nav-archives-screen" class="nav-item" onclick="showScreen('archives-screen')">🗂️<br>الأرشيف</div>
+    </div>
+
+    <!-- نافذة تأكيد الحذف -->
+    <div id="delete-modal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-icon">🗑️</div>
+        <h3>تأكيد الحذف</h3>
+        <p>هل أنت متأكد أنك تريد حذف هذا السجل من الأرشيف نهائياً؟ لا يمكن التراجع عن هذه الخطوة.</p>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" onclick="closeDeleteModal()">إلغاء</button>
+          <button class="modal-btn confirm" onclick="confirmDeleteArchive()">نعم، احذف</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    // تحميل البيانات من الذاكرة المحلية
+let state = JSON.parse(localStorage.getItem('cashbook_data')) || {
+  transactions: [],
+  archives: [],
+  openedAt: formatDateTime(new Date())
+};
+
+let currentEntryType = 'income';
+let calcExpression = '';
+let archiveIndexToDelete = null;
+
+function saveState() {
+  localStorage.setItem('cashbook_data', JSON.stringify(state));
+}
+
+function formatDateTime(date) {
+  return date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' }) +
+         ' ساعة ' +
+         date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  const activeNav = document.getElementById('nav-' + screenId);
+  if (activeNav) {
+    activeNav.classList.add('active');
+  }
+
+  const nav = document.getElementById('bottom-nav');
+  const hideNavScreens = ['entry-screen', 'close-screen', 'archive-detail-screen'];
+  nav.style.display = hideNavScreens.includes(screenId) ? 'none' : 'flex';
+
+  if (screenId === 'home-screen') renderHome();
+  if (screenId === 'archives-screen') renderArchives();
+  if (screenId === 'reports-screen') renderReports();
+}
+
+function renderHome() {
+  let income = 0, expense = 0;
+  state.transactions.forEach(t => {
+    if (t.type === 'income') income += t.amount;
+    else expense += t.amount;
+  });
+  const balance = income - expense;
+
+  const balEl = document.getElementById('balance-display');
+  balEl.textContent = `${balance.toFixed(1)} ج.م.`;
+  balEl.className = 'balance-amount ' + (balance < 0 ? 'negative' : '');
+  balEl.closest('.balance-card').classList.toggle('negative', balance < 0);
+
+  document.getElementById('total-income').textContent = income.toFixed(1);
+  document.getElementById('total-expense').textContent = expense.toFixed(1);
+  document.getElementById('tx-count').textContent = state.transactions.length;
+
+  const listEl = document.getElementById('tx-list');
+  listEl.innerHTML = '';
+
+  let runningBalance = 0;
+  const withBalances = [...state.transactions].reverse().map(t => {
+    runningBalance += (t.type === 'income' ? t.amount : -t.amount);
+    return { ...t, balanceAfter: runningBalance };
+  }).reverse();
+
+  withBalances.forEach(t => {
+    const isIn = t.type === 'income';
+    listEl.innerHTML += `
+      <div class="tx-item">
+        <div class="tx-right">
+          <div class="tx-badge ${isIn ? 'in' : 'out'}">${isIn ? '+' : '-'}</div>
+          <div>
+            <div class="tx-title">${t.note || (isIn ? 'دخل' : 'مصروف')}</div>
+            <div class="tx-sub">الرصيد ${t.balanceAfter.toFixed(1)} ج.م.</div>
+          </div>
+        </div>
+        <div class="tx-left">
+          <div class="tx-amount ${isIn ? 'income-text' : 'expense-text'}">${t.amount.toFixed(1)} ج.م.</div>
+          <div class="tx-sub">${t.date}</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function openEntry(type) {
+  currentEntryType = type;
+  calcExpression = '';
+  document.getElementById('tx-note').value = '';
+
+  const isIn = type === 'income';
+  document.getElementById('entry-title').textContent = isIn ? 'دخل' : 'مصروف';
+  document.getElementById('entry-subtitle').textContent = isIn ? 'دخل' : 'مصروف';
+
+  const disp = document.getElementById('calc-display');
+  disp.textContent = '0 ج.م.';
+  disp.className = 'entry-value ' + (isIn ? 'income-text' : 'expense-text');
+
+  const btn = document.getElementById('confirm-btn');
+  btn.className = 'confirm-btn ' + (isIn ? 'btn-income' : 'btn-expense');
+
+  showScreen('entry-screen');
+}
+
+function pressKey(k) {
+  if (k === 'AC') {
+    calcExpression = '';
+  } else if (k === 'DEL') {
+    calcExpression = calcExpression.slice(0, -1);
+  } else {
+    calcExpression += k;
+  }
+  document.getElementById('calc-display').textContent = (calcExpression || '0') + ' ج.م.';
+}
+
+function calculateResult() {
+  try {
+    if (!calcExpression) return 0;
+    const clean = calcExpression.replace(/%/g, '/100').replace(/[+\-*/.]+$/, '');
+    if (!clean) return 0;
+    const res = Function('"use strict";return (' + clean + ')')();
+    calcExpression = String(Number(res.toFixed(2)));
+    document.getElementById('calc-display').textContent = calcExpression + ' ج.م.';
+    return parseFloat(calcExpression);
+  } catch {
+    alert('صيغة حسابية غير صحيحة');
+    return 0;
+  }
+}
+
+function saveTransaction() {
+  const amount = calculateResult();
+  if (!amount || amount <= 0) {
+    alert('يرجى إدخال مبلغ صحيح أكبر من الصفر');
+    return;
+  }
+  const note = document.getElementById('tx-note').value.trim();
+  if (state.transactions.length === 0) {
+    state.openedAt = formatDateTime(new Date());
+  }
+
+  state.transactions.unshift({
+    id: Date.now(),
+    type: currentEntryType,
+    amount: amount,
+    note: note,
+    date: formatDateTime(new Date())
+  });
+
+  saveState();
+  showScreen('home-screen');
+}
+
+function openCloseAccount() {
+  if (state.transactions.length === 0) {
+    alert('لا توجد معاملات حالية لأرشفتها');
+    return;
+  }
+  let income = 0, expense = 0;
+  state.transactions.forEach(t => t.type === 'income' ? income += t.amount : expense += t.amount);
+  const net = income - expense;
+
+  const balEl = document.getElementById('close-balance');
+  balEl.textContent = `${net.toFixed(1)} ج.م.`;
+  balEl.className = 'balance-amount ' + (net < 0 ? 'negative' : '');
+  balEl.closest('.balance-card').classList.toggle('negative', net < 0);
+
+  document.getElementById('close-income').textContent = income.toFixed(1);
+  document.getElementById('close-expense').textContent = expense.toFixed(1);
+  document.getElementById('open-date').textContent = state.openedAt;
+  document.getElementById('close-date').textContent = formatDateTime(new Date());
+  document.getElementById('close-count').textContent = state.transactions.length;
+
+  showScreen('close-screen');
+}
+
+function archiveNow() {
+  let income = 0, expense = 0;
+  state.transactions.forEach(t => t.type === 'income' ? income += t.amount : expense += t.amount);
+
+  state.archives.unshift({
+    from: state.openedAt,
+    to: formatDateTime(new Date()),
+    netBalance: income - expense,
+    income: income,
+    expense: expense,
+    count: state.transactions.length,
+    transactions: [...state.transactions]
+  });
+
+  state.transactions = [];
+  state.openedAt = formatDateTime(new Date());
+  saveState();
+  showScreen('archives-screen');
+}
+
+function renderArchives() {
+  const list = document.getElementById('archives-list');
+  if (state.archives.length === 0) {
+    list.innerHTML = '<p style="text-align:center; color:#90a4ae; margin-top:40px;">لا يوجد أرشيف سابق</p>';
+    return;
+  }
+  list.innerHTML = '';
+  state.archives.forEach((a, index) => {
+    const isNeg = a.netBalance < 0;
+    list.innerHTML += `
+      <div class="info-card archive-clickable" style="margin:0; cursor:pointer;" onclick="openArchiveDetail(${index})">
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#546e7a;">
+          <span>من: ${a.from}</span>
+          <span>إلى: ${a.to}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <div style="font-weight:700; color:${isNeg ? 'var(--red)' : 'var(--green)'};">
+            الرصيد الصافي: ${a.netBalance.toFixed(1)} ج.م.
+          </div>
+          <button class="delete-archive-btn" onclick="event.stopPropagation(); askDeleteArchive(${index})">🗑️ حذف</button>
+        </div>
+        <div style="font-size:11px; color:var(--primary-blue); margin-top:6px;">
+          اضغط لعرض التقرير والتفاصيل ⬅
+        </div>
+      </div>
+    `;
+  });
+}
+
+function openArchiveDetail(index) {
+  const archive = state.archives[index];
+  if (!archive) return;
+
+  const income = archive.income !== undefined ? archive.income : (archive.netBalance > 0 ? archive.netBalance : 0);
+  const expense = archive.expense !== undefined ? archive.expense : (archive.netBalance < 0 ? Math.abs(archive.netBalance) : 0);
+  const txs = archive.transactions || [];
+
+  const balEl = document.getElementById('arch-det-balance');
+  balEl.textContent = `${archive.netBalance.toFixed(1)} ج.م.`;
+  balEl.className = 'balance-amount ' + (archive.netBalance < 0 ? 'negative' : '');
+  balEl.closest('.balance-card').classList.toggle('negative', archive.netBalance < 0);
+
+  document.getElementById('arch-det-income').textContent = income.toFixed(1);
+  document.getElementById('arch-det-expense').textContent = expense.toFixed(1);
+  document.getElementById('arch-det-from').textContent = archive.from || '-';
+  document.getElementById('arch-det-to').textContent = archive.to || '-';
+  document.getElementById('arch-det-count').textContent = txs.length;
+
+  const listEl = document.getElementById('arch-det-list');
+  listEl.innerHTML = '';
+  listEl.scrollTop = 0;
+
+  let runningBalance = 0;
+  const withBalances = [...txs].reverse().map(t => {
+    runningBalance += (t.type === 'income' ? t.amount : -t.amount);
+    return { ...t, balanceAfter: runningBalance };
+  }).reverse();
+
+  withBalances.forEach(t => {
+    const isIn = t.type === 'income';
+    listEl.innerHTML += `
+      <div class="tx-item">
+        <div class="tx-right">
+          <div class="tx-badge ${isIn ? 'in' : 'out'}">${isIn ? '+' : '-'}</div>
+          <div>
+            <div class="tx-title">${t.note || (isIn ? 'دخل' : 'مصروف')}</div>
+            <div class="tx-sub">الرصيد ${t.balanceAfter.toFixed(1)} ج.م.</div>
+          </div>
+        </div>
+        <div class="tx-left">
+          <div class="tx-amount ${isIn ? 'income-text' : 'expense-text'}">${t.amount.toFixed(1)} ج.م.</div>
+          <div class="tx-sub">${t.date}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  showScreen('archive-detail-screen');
+}
+
+function askDeleteArchive(index) {
+  archiveIndexToDelete = index;
+  document.getElementById('delete-modal').classList.add('active');
+}
+
+function closeDeleteModal() {
+  archiveIndexToDelete = null;
+  document.getElementById('delete-modal').classList.remove('active');
+}
+
+function confirmDeleteArchive() {
+  if (archiveIndexToDelete !== null) {
+    state.archives.splice(archiveIndexToDelete, 1);
+    saveState();
+    renderArchives();
+  }
+  closeDeleteModal();
+}
+
+function renderReports() {
+  let totalIn = 0, totalOut = 0, inCount = 0, outCount = 0;
+  state.transactions.forEach(t => {
+    if (t.type === 'income') { totalIn += t.amount; inCount++; }
+    else { totalOut += t.amount; outCount++; }
+  });
+  const net = totalIn - totalOut;
+
+  const balEl = document.getElementById('rep-balance');
+  balEl.textContent = `${net.toFixed(1)} ج.م.`;
+  balEl.className = 'balance-amount ' + (net < 0 ? 'negative' : '');
+  balEl.closest('.balance-card').classList.toggle('negative', net < 0);
+
+  document.getElementById('rep-in-total').textContent = `${totalIn.toFixed(1)} ج.م.`;
+  document.getElementById('rep-in-count').textContent = `${inCount} عمليات`;
+  document.getElementById('rep-out-total').textContent = `${totalOut.toFixed(1)} ج.م.`;
+  document.getElementById('rep-out-count').textContent = `${outCount} عمليات`;
+}
+
+// تشغيل التطبيق عند التحميل
+renderHome();
+  </script>
+</body>
+</html>
